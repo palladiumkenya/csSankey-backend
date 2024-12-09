@@ -60,7 +60,7 @@ def serve_react_app(build_dir: Union[Path, str]) -> FastAPI:
     return app
 
 path_to_react_app_build_dir = './build'
-app = serve_react_app(path_to_react_app_build_dir)
+# app = serve_react_app(path_to_react_app_build_dir)
 
 @app.post("/sankey-data/")
 def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
