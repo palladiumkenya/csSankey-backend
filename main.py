@@ -27,7 +27,6 @@ app.add_middleware(
 
 # app.mount("/{rest_of_path: path}/{rest_of_path2: path}", StaticFiles(directory="build", html=True), name="static")
 
-
 @app.post("/sankey-data/")
 def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
     query = db.query(
