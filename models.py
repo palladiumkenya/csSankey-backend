@@ -6,7 +6,7 @@ from database import Base
 
 
 class CaseBreakdown(Base):
-    __tablename__ = "casebreakdown"
+    __tablename__ = "sentinel"
 
     source = Column(String, unique=False)
     target = Column(String, unique=False)
@@ -28,3 +28,7 @@ class SankeyFilter(BaseModel):
     Agency: Optional[str] = None
     Partner: Optional[str] = None
     CohortYearMonth: Optional[str] = None
+
+
+class SankeyBreakdown(BaseModel):
+    node: str
