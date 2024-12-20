@@ -74,7 +74,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
 
     if node.node in ['Total Cases Reported', 'Linked', 'Not Linked']:
         # Table 1: Gender and LinkedToART
-        query1 = 'SELECT Gender, SUM(LinkedToART) as number FROM CsSentinelEvents GROUP BY Gender;'
+        query1 = "SELECT Gender, SUM(LinkedToART) as number FROM CsSentinelEvents WHERE CohortYearMonth >= '2023-01-01' and CohortYearMonth < '2024-01-01' GROUP BY Gender;"
         data1 = db.execute(text(query1)).fetchall()
 
         result.append({
@@ -85,9 +85,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             ],
             "rows": [{"gender": row.Gender, "number": row.number} for row in data1]
         })
-        print("here")
+
         # Table 2: Gender and Not Linked
-        query2 = 'SELECT Gender, SUM(CASE WHEN LinkedToART = 0 THEN 1 ELSE 0 END) as number FROM CsSentinelEvents GROUP BY Gender;'
+        query2 = "SELECT Gender, SUM(CASE WHEN LinkedToART = 0 THEN 1 ELSE 0 END) as number FROM CsSentinelEvents WHERE CohortYearMonth >= '2023-01-01' and CohortYearMonth < '2024-01-01' GROUP BY Gender;"
         data2 = db.execute(text(query2)).fetchall()
         result.append({
             "tableTitle": "Non-Linked Cases by Gender",
@@ -103,7 +103,8 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         SELECT 
             IIF(PatientRetained = 0, 'No', 'Yes') as patient_retained, 
             SUM(LinkedToART) as number 
-        FROM CsSentinelEvents 
+        FROM CsSentinelEvents
+        WHERE CohortYearMonth >= '2023-01-01' and CohortYearMonth < '2024-01-01'
         GROUP BY PatientRetained;
         """
         data3 = db.execute(text(query3)).fetchall()
@@ -123,7 +124,8 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             IIF(PatientRetained = 0, 'No', 'Yes') as patient_retained, 
             IIF(WithBaselineCD4 = 0, 'No', 'Yes') as with_baseline_cd4, 
             COUNT(WithBaselineCD4) as number 
-        FROM CsSentinelEvents 
+        FROM CsSentinelEvents
+        WHERE CohortYearMonth >= '2023-01-01' and CohortYearMonth < '2024-01-01'
         GROUP BY PatientRetained, WithBaselineCD4;
         """
         data1 = db.execute(text(query1)).fetchall()
@@ -151,7 +153,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             Gender, 
             SUM(LinkedToART) as number 
         FROM CsSentinelEvents 
-        WHERE WHOStageATART > 0 
+        WHERE WHOStageATART > 0 and CohortYearMonth >= '2023-01-01' and CohortYearMonth < '2024-01-01'
         GROUP BY WHOStageATART, Gender 
         ORDER BY WHOStageATART;
         """
