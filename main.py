@@ -46,6 +46,9 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
     if filters.CohortYearMonth:
         query = query.filter(CaseBreakdown.CohortYearMonth == filters.CohortYearMonth)
 
+    query = query.filter(CaseBreakdown.CohortYearMonth >= '2023-01-01')
+    query = query.filter(CaseBreakdown.CohortYearMonth < '2024-01-01')
+
     query = query.group_by(CaseBreakdown.source, CaseBreakdown.target)
     data = query.all()
 
