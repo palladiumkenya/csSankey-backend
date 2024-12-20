@@ -196,7 +196,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
                 for row in data3
             ]
         })
-    elif node.node.find('Initial Viral Load'):
+    elif node.node in ['Initial Viral Load Done', 'Initial Viral Load Not Done', 'Initial Viral Load Suppressed', 'Initial Viral Load Unsuppressed']:
         query1 = """
         SELECT  
             Gender, 
@@ -244,6 +244,20 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
                 for row in data2
             ]
         })
+    else:
+        # Table 1: Gender and LinkedToART
+        query1 = "SELECT Gender, SUM(LinkedToART) as number FROM CsSentinelEvents WHERE CohortYearMonth >= '2023-01-01' and CohortYearMonth < '2024-01-01' GROUP BY Gender;"
+        data1 = db.execute(text(query1)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
+            ],
+            "rows": [{"gender": row.Gender, "number": row.number} for row in data1]
+        })
+
 
     return result
 
