@@ -244,6 +244,8 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
                 for row in data2
             ]
         })
+    elif 'highcharts' in node.node:
+        return []
     else:
         # Table 1: Gender and LinkedToART
         query1 = "SELECT Gender, SUM(LinkedToART) as number FROM CsSentinelEvents WHERE CohortYearMonth >= '2023-01-01' and CohortYearMonth < '2024-01-01' GROUP BY Gender;"
