@@ -78,7 +78,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data1 = db.execute(text(query1)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution for {node.node}",
+            "tableTitle": f"Gender Distribution",
             "columns": [
                 {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
                 {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
@@ -109,7 +109,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         """
         data3 = db.execute(text(query3)).fetchall()
         result.append({
-            "tableTitle": f"Patient Retention for {node.node}",
+            "tableTitle": f"Patient Retention",
             "columns": [
                 {"field": "patient_retained", "headerName": "Patient Retained", "flex": 1, "minWidth": 100},
                 {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
@@ -130,7 +130,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         """
         data1 = db.execute(text(query1)).fetchall()
         result.append({
-            "tableTitle": f"Patient Retention and Baseline CD4 for {node.node}",
+            "tableTitle": "Patient Retention and Baseline CD4",
             "columns": [
                 {"field": "patient_retained", "headerName": "Patient Retained", "flex": 1, "minWidth": 100},
                 {"field": "with_baseline_cd4", "headerName": "With Baseline CD4", "flex": 1, "minWidth": 100},
@@ -159,7 +159,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         """
         data2 = db.execute(text(query2)).fetchall()
         result.append({
-            "tableTitle": f"WHO Stage Distribution by Gender for {node.node}",
+            "tableTitle": f"WHO Stage Distribution by Gender",
             "columns": [
                 { "field": "who_stage", "headerName": "WHO Stage", "flex": 1, "minWidth": 100 },
                 { "field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100 },
@@ -168,6 +168,76 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             "rows": [
                 {
                     "who_stage": row.WHOStageATART,
+                    "gender": row.Gender,
+                    "number": row.number
+                }
+                for row in data2
+            ]
+        })
+
+        # Table 2: WHO Stage and Gender
+        query3 = """
+        SELECT gender, SUM(CD4Lessthan200) CD4LessThan200, Sum(CD4Morethan200) CD4MoreThan200 From CsSentinelEvents GROUP BY Gender;
+        """
+        data3 = db.execute(text(query3)).fetchall()
+        result.append({
+            "tableTitle": f"WHO Stage Distribution by Gender",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "CD4LessThan200", "headerName": "CD4 Less Than 200 copies", "flex": 1, "minWidth": 100},
+                {"field": "CD4MoreThan200", "headerName": "CD4 More Than 200 copies", "flex": 1, "minWidth": 100}
+            ],
+            "rows": [
+                {
+                    "who_stage": row.gender,
+                    "gender": row.CD4LessThan200,
+                    "number": row.CD4MoreThan200
+                }
+                for row in data3
+            ]
+        })
+    elif node.node.find('Initial Viral Load'):
+        query1 = """
+        SELECT  
+            Gender, 
+            SUM(WithInitialViralLoad) as number 
+        FROM CsSentinelEvents 
+        WHERE WHOStageATART > 0 and CohortYearMonth >= '2023-01-01' and CohortYearMonth < '2024-01-01'
+        GROUP BY Gender;
+        """
+        data1 = db.execute(text(query1)).fetchall()
+        result.append({
+            "tableTitle": f"Initial Viral Load Distribution by Gender",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
+            ],
+            "rows": [
+                {
+                    "gender": row.Gender,
+                    "number": row.number
+                }
+                for row in data1
+            ]
+        })
+
+        query2 = """
+        SELECT  
+            Gender, 
+            SUM(WithoutInitialViralLoad) as number 
+        FROM CsSentinelEvents 
+        WHERE WHOStageATART > 0 and CohortYearMonth >= '2023-01-01' and CohortYearMonth < '2024-01-01'
+        GROUP BY Gender;
+        """
+        data2 = db.execute(text(query2)).fetchall()
+        result.append({
+            "tableTitle": f"Initial Viral Load Not Done Distribution by Gender",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
+            ],
+            "rows": [
+                {
                     "gender": row.Gender,
                     "number": row.number
                 }
