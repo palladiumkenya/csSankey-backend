@@ -1,5 +1,7 @@
 from pathlib import Path
 from typing import Union
+
+from annotated_types.test_cases import Case
 from sqlalchemy.sql import text
 from fastapi import FastAPI, Depends, Request
 from sqlalchemy import func
@@ -30,6 +32,7 @@ app.add_middleware(
 @app.post("/sankey-data/")
 def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
     query = db.query(
+        CaseBreakdown.ord,
         CaseBreakdown.source,
         CaseBreakdown.target,
         func.sum(CaseBreakdown.metric).label('total_metric')
@@ -52,7 +55,7 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
     else:
         query = query.filter(CaseBreakdown.CohortYearMonth < '2024-01-01')
 
-    query = query.group_by(CaseBreakdown.source, CaseBreakdown.target)
+    query = query.group_by(CaseBreakdown.ord, CaseBreakdown.source, CaseBreakdown.target).order_by(CaseBreakdown.ord)
     data = query.all()
 
     df = pd.DataFrame([{

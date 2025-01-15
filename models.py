@@ -11,6 +11,7 @@ class CaseBreakdown(Base):
     source = Column(String, unique=False)
     target = Column(String, unique=False)
     metric = Column(Integer, unique=False)
+    ord = Column(Integer, unique=False)
     County = Column(String, unique=False)
     SubCounty = Column(String, unique=False)
     Agency = Column(String, unique=False)
@@ -27,6 +28,8 @@ class SankeyFilter(BaseModel):
     SubCounty: Optional[str] = None
     Agency: Optional[str] = None
     Partner: Optional[str] = None
+    CohortYearMonthStart: Optional[str] = None
+    CohortYearMonthEnd: Optional[str] = None
 
 
 class SankeyBreakdown(BaseModel):
