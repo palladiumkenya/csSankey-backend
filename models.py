@@ -27,8 +27,9 @@ class SankeyFilter(BaseModel):
     SubCounty: Optional[str] = None
     Agency: Optional[str] = None
     Partner: Optional[str] = None
-    CohortYearMonth: Optional[str] = None
 
 
 class SankeyBreakdown(BaseModel):
     node: str
+    CohortYearMonthStart: Optional[str] = None
+    CohortYearMonthEnd: Optional[str] = None
