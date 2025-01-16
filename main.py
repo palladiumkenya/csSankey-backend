@@ -211,7 +211,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             Gender, 
             SUM(WithInitialViralLoad) as number 
         FROM CsSentinelEvents 
-        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthStart}'
+        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}'
         GROUP BY Gender;
         """
         data1 = db.execute(text(query1)).fetchall()
