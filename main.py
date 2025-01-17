@@ -43,9 +43,9 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
     if filters.SubCounty:
         query = query.filter(CaseBreakdown.SubCounty == filters.SubCounty)
     if filters.Agency:
-        query = query.filter(CaseBreakdown.Agency == filters.Agency)
+        query = query.filter(CaseBreakdown.AgencyName == filters.Agency)
     if filters.Partner:
-        query = query.filter(CaseBreakdown.Partner == filters.Partner)
+        query = query.filter(CaseBreakdown.PartnerName == filters.Partner)
     if filters.CohortYearMonthStart:
         query = query.filter(CaseBreakdown.CohortYearMonth >= filters.CohortYearMonthStart)
     else:
@@ -71,7 +71,19 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
         for record in data
     ]
 
-    return {"sankeyData": sankey_data}
+    # Get unique values for counties, subcounties, partners, and agencies
+    unique_counties = db.query(CaseBreakdown.County).distinct().order_by(CaseBreakdown.County).all()
+    unique_subcounties = db.query(CaseBreakdown.SubCounty).distinct().order_by(CaseBreakdown.SubCounty).all()
+    unique_partners = db.query(CaseBreakdown.PartnerName).distinct().order_by(CaseBreakdown.PartnerName).all()
+    unique_agencies = db.query(CaseBreakdown.AgencyName).distinct().order_by(CaseBreakdown.AgencyName).all()
+
+    return {
+        "sankeyData": sankey_data,
+        "uniqueCounties": [county[0] for county in unique_counties],
+        "uniqueSubCounties": [subcounty[0] for subcounty in unique_subcounties],
+        "uniquePartners": [partner[0] for partner in unique_partners],
+        "uniqueAgencies": [agency[0] for agency in unique_agencies]
+    }
 
 
 @app.post("/sankey-data/breakdown")

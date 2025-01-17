@@ -14,12 +14,12 @@ class CaseBreakdown(Base):
     ord = Column(Integer, unique=False)
     County = Column(String, unique=False)
     SubCounty = Column(String, unique=False)
-    Agency = Column(String, unique=False)
-    Partner = Column(String, unique=False)
+    AgencyName = Column(String, unique=False)
+    PartnerName = Column(String, unique=False)
     CohortYearMonth = Column(String, unique=False)
 
     __table_args__ = (
-        PrimaryKeyConstraint('source', 'target', 'County', 'SubCounty', 'Agency', 'Partner', 'CohortYearMonth'),
+        PrimaryKeyConstraint('source', 'target', 'County', 'SubCounty', 'AgencyName', 'PartnerName', 'CohortYearMonth'),
     )
 
 
