@@ -39,13 +39,13 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
     )
 
     if filters.County:
-        query = query.filter(CaseBreakdown.County == filters.County)
+        query = query.filter(CaseBreakdown.County.in_(filters.County))
     if filters.SubCounty:
-        query = query.filter(CaseBreakdown.SubCounty == filters.SubCounty)
+        query = query.filter(CaseBreakdown.SubCounty.in_(filters.SubCounty))
     if filters.Agency:
-        query = query.filter(CaseBreakdown.AgencyName == filters.Agency)
+        query = query.filter(CaseBreakdown.AgencyName.in_(filters.Agency))
     if filters.Partner:
-        query = query.filter(CaseBreakdown.PartnerName == filters.Partner)
+        query = query.filter(CaseBreakdown.PartnerName.in_(filters.Partner))
     if filters.CohortYearMonthStart:
         query = query.filter(CaseBreakdown.CohortYearMonth >= filters.CohortYearMonthStart)
     else:

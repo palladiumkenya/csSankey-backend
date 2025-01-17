@@ -36,3 +36,7 @@ class SankeyBreakdown(BaseModel):
     node: str
     CohortYearMonthStart: Optional[str] = None
     CohortYearMonthEnd: Optional[str] = None
+    County: Optional[list] = None
+    SubCounty: Optional[list] = None
+    Agency: Optional[list] = None
+    Partner: Optional[list] = None
