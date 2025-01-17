@@ -24,10 +24,10 @@ class CaseBreakdown(Base):
 
 
 class SankeyFilter(BaseModel):
-    County: Optional[str] = None
-    SubCounty: Optional[str] = None
-    Agency: Optional[str] = None
-    Partner: Optional[str] = None
+    County: Optional[list] = None
+    SubCounty: Optional[list] = None
+    Agency: Optional[list] = None
+    Partner: Optional[list] = None
     CohortYearMonthStart: Optional[str] = None
     CohortYearMonthEnd: Optional[str] = None
 

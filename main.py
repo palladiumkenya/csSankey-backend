@@ -89,10 +89,24 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
 @app.post("/sankey-data/breakdown")
 def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
     result = []  # List to hold multiple tables
+    filters = []
+    if node.PartnerName:
+        filters.append("PartnerName IN :partner_names")
+    if node.AgencyName:
+        filters.append("AgencyName IN :agency_names")
+    if node.County:
+        filters.append("County IN :counties")
+    if node.SubCounty:
+        filters.append("SubCounty IN :subcounties")
 
     if node.node in ['Total Cases Reported', 'Linked', 'Not Linked']:
         # Table 1: Gender and LinkedToART
-        query1 = f"SELECT Gender, SUM(LinkedToART) as number FROM CsSentinelEvents WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' GROUP BY Gender;"
+        query1 = f"""
+            SELECT Gender, SUM(LinkedToART) as number 
+            FROM CsSentinelEvents 
+            WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}'
+            GROUP BY Gender;
+        """
         data1 = db.execute(text(query1)).fetchall()
 
         result.append({
