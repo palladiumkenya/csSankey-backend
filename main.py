@@ -90,21 +90,26 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
 def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
     result = []  # List to hold multiple tables
     filters = []
-    if node.PartnerName:
-        filters.append("PartnerName IN :partner_names")
-    if node.AgencyName:
-        filters.append("AgencyName IN :agency_names")
+    filter_string = ""
+    if node.Partner:
+        filters.append(f"PartnerName IN {tuple(node.Partner)}")
+    if node.Agency:
+        filters.append(f"AgencyName IN {tuple(node.Agency)}")
     if node.County:
-        filters.append("County IN :counties")
+        filters.append(f"County IN {tuple(node.County)}")
     if node.SubCounty:
-        filters.append("SubCounty IN :subcounties")
+        filters.append(f"SubCounty IN {tuple(node.SubCounty)}")
+
+    # Combine filters with base query
+    if filters:
+        filter_string += " AND " + " AND ".join(filters)
 
     if node.node in ['Total Cases Reported', 'Linked', 'Not Linked']:
         # Table 1: Gender and LinkedToART
         query1 = f"""
             SELECT Gender, SUM(LinkedToART) as number 
             FROM CsSentinelEvents 
-            WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}'
+            WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
             GROUP BY Gender;
         """
         data1 = db.execute(text(query1)).fetchall()
@@ -119,7 +124,11 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         })
 
         # Table 2: Gender and Not Linked
-        query2 = f"SELECT Gender, SUM(CASE WHEN LinkedToART = 0 THEN 1 ELSE 0 END) as number FROM CsSentinelEvents WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' GROUP BY Gender;"
+        query2 = f"""
+            SELECT Gender, SUM(CASE WHEN LinkedToART = 0 THEN 1 ELSE 0 END) as number 
+            FROM CsSentinelEvents 
+            WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+            GROUP BY Gender;"""
         data2 = db.execute(text(query2)).fetchall()
         result.append({
             "tableTitle": "Non-Linked Cases by Gender",
@@ -136,7 +145,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             IIF(PatientRetained = 0, 'No', 'Yes') as patient_retained, 
             SUM(LinkedToART) as number 
         FROM CsSentinelEvents
-        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}'
+        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
         GROUP BY PatientRetained;
         """
         data3 = db.execute(text(query3)).fetchall()
@@ -157,7 +166,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             IIF(WithBaselineCD4 = 0, 'No', 'Yes') as with_baseline_cd4, 
             COUNT(WithBaselineCD4) as number 
         FROM CsSentinelEvents
-        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}'
+        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
         GROUP BY PatientRetained, WithBaselineCD4;
         """
         data1 = db.execute(text(query1)).fetchall()
@@ -185,7 +194,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             Gender, 
             SUM(LinkedToART) as number 
         FROM CsSentinelEvents 
-        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}'
+        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
         GROUP BY WHOStageATART, Gender
         ORDER BY WHOStageATART;
         """
@@ -211,7 +220,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         query3 = f"""
         SELECT gender, SUM(CD4Lessthan200) CD4LessThan200, Sum(CD4Morethan200) CD4MoreThan200 
         From CsSentinelEvents 
-        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}'
+        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
         GROUP BY Gender;
         """
         data3 = db.execute(text(query3)).fetchall()
@@ -237,7 +246,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             Gender, 
             SUM(WithInitialViralLoad) as number 
         FROM CsSentinelEvents 
-        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}'
+        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
         GROUP BY Gender;
         """
         data1 = db.execute(text(query1)).fetchall()
@@ -261,7 +270,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             Gender, 
             SUM(WithoutInitialViralLoad) as number 
         FROM CsSentinelEvents 
-        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}'
+        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
         GROUP BY Gender;
         """
         data2 = db.execute(text(query2)).fetchall()
@@ -283,7 +292,12 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         return []
     else:
         # Table 1: Gender and LinkedToART
-        query1 = f"SELECT Gender, SUM(LinkedToART) as number FROM CsSentinelEvents WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' GROUP BY Gender;"
+        query1 = f"""
+            SELECT Gender, SUM(LinkedToART) as number 
+            FROM CsSentinelEvents 
+            WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+            GROUP BY Gender;
+        """
         data1 = db.execute(text(query1)).fetchall()
 
         result.append({
