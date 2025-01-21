@@ -6,7 +6,7 @@ from database import Base
 
 
 class CaseBreakdown(Base):
-    __tablename__ = "sentinel"
+    __tablename__ = "CSAggregateSentinelSankey"
 
     source = Column(String, unique=False)
     target = Column(String, unique=False)
