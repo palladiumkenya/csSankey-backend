@@ -108,18 +108,272 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
     if filters:
         filter_string += " AND " + " AND ".join(filters)
 
-    if node.node in ['Total Cases Reported', 'Linked', 'Not Linked']:
-        # Table 1: Gender and LinkedToART
+    if node.node in ['Total Cases Reported']:
+        query2 = f"""
+        SELECT 
+            Gender,
+            SUM(LinkedToART) AS Linked,
+            SUM(NotLinkedOnART) AS NotLinked,
+            SUM(WithoutBaselineCD4) AS InitialCD4Done,
+            SUM(WithBaselineCD4) AS InitialCD4NotDone,
+            SUM(AHD) AS WithAHD,
+            SUM(CASE WHEN AHD = 0 THEN 1 ELSE 0 END) AS  WithoutAHD,
+            SUM(NotStaged) AS NotStaged,
+            SUM(WithInitialViralLoad) AS InitialViralLoadDone,
+            SUM(WithoutInitialViralLoad) AS InitialViralLoadNotDone,
+            SUM(IsSuppressedInitialViralload) AS InitialViralLoadSuppressed,
+            SUM(IIF(CsSentinelEvents.IsSuppressedInitialViralload = 0, 1, 0)) AS InitialViralLoadUnsuppressed,
+            SUM(RegimenChanged) AS RegimenChangeDone,
+            SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+            SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+            SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+            SUM(PatientRetained) AS PatientsRetained,
+            SUM(PatientNotRetained) AS PatientsNotRetained
+        FROM CsSentinelEvents
+        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+        GROUP BY Gender
+        """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "linked", "headerName": "Linked", "flex": 1, "minWidth": 100},
+                {"field": "notLinked", "headerName": "Not Linked", "flex": 1, "minWidth": 100},
+                {"field": "initialCD4Done", "headerName": "Initial CD4 Done", "flex": 1, "minWidth": 100},
+                {"field": "initialCD4NotDone", "headerName": "Initial CD4 Not Done", "flex": 1, "minWidth": 100},
+                {"field": "withAHD", "headerName": "With AHD", "flex": 1, "minWidth": 100},
+                {"field": "WithoutAHD", "headerName": "Without AHD", "flex": 1, "minWidth": 100},
+                {"field": "NotStaged", "headerName": "Not Staged", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "linked": row.Linked,
+                "notLinked": row.NotLinked,
+                "initialCD4Done": row.InitialCD4Done,
+                "initialCD4NotDone": row.InitialCD4NotDone,
+                "withAHD": row.WithAHD,
+                "WithoutAHD": row.WithoutAHD,
+                "NotStaged": row.NotStaged,
+                "InitialViralLoadDone": row.InitialViralLoadDone,
+                "InitialViralLoadNotDone": row.InitialViralLoadNotDone,
+                "InitialViralLoadSuppressed": row.InitialViralLoadSuppressed,
+                "InitialViralLoadUnsuppressed": row.InitialViralLoadUnsuppressed,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Linked']:
+        query2 = f"""
+        SELECT 
+            Gender,
+            SUM(LinkedToART) AS Linked,
+            SUM(WithoutBaselineCD4) AS InitialCD4Done,
+            SUM(WithBaselineCD4) AS InitialCD4NotDone,
+            SUM(AHD) AS WithAHD,
+            SUM(CASE WHEN AHD = 0 THEN 1 ELSE 0 END) AS  WithoutAHD,
+            SUM(NotStaged) AS NotStaged,
+            SUM(WithInitialViralLoad) AS InitialViralLoadDone,
+            SUM(WithoutInitialViralLoad) AS InitialViralLoadNotDone,
+            SUM(IsSuppressedInitialViralload) AS InitialViralLoadSuppressed,
+            SUM(IIF(CsSentinelEvents.IsSuppressedInitialViralload = 0, 1, 0)) AS InitialViralLoadUnsuppressed,
+            SUM(RegimenChanged) AS RegimenChangeDone,
+            SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+            SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+            SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+            SUM(PatientRetained) AS PatientsRetained,
+            SUM(PatientNotRetained) AS PatientsNotRetained
+        FROM CsSentinelEvents
+        WHERE LinkedToART = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+        GROUP BY Gender
+        """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "linked", "headerName": "Linked", "flex": 1, "minWidth": 100},
+                {"field": "initialCD4Done", "headerName": "Initial CD4 Done", "flex": 1, "minWidth": 100},
+                {"field": "initialCD4NotDone", "headerName": "Initial CD4 Not Done", "flex": 1, "minWidth": 100},
+                {"field": "withAHD", "headerName": "With AHD", "flex": 1, "minWidth": 100},
+                {"field": "WithoutAHD", "headerName": "Without AHD", "flex": 1, "minWidth": 100},
+                {"field": "NotStaged", "headerName": "Not Staged", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "linked": row.Linked,
+                "initialCD4Done": row.InitialCD4Done,
+                "initialCD4NotDone": row.InitialCD4NotDone,
+                "withAHD": row.WithAHD,
+                "WithoutAHD": row.WithoutAHD,
+                "NotStaged": row.NotStaged,
+                "InitialViralLoadDone": row.InitialViralLoadDone,
+                "InitialViralLoadNotDone": row.InitialViralLoadNotDone,
+                "InitialViralLoadSuppressed": row.InitialViralLoadSuppressed,
+                "InitialViralLoadUnsuppressed": row.InitialViralLoadUnsuppressed,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Initial CD4 Not Done']:
+
+        query2 = f"""
+        SELECT 
+            Gender,
+            SUM(WithoutBaselineCD4) AS InitialCD4NotDone,
+            SUM(WithInitialViralLoad) AS InitialViralLoadDone,
+            SUM(WithoutInitialViralLoad) AS InitialViralLoadNotDone,
+            SUM(IsSuppressedInitialViralload) AS InitialViralLoadSuppressed,
+            SUM(IIF(CsSentinelEvents.IsSuppressedInitialViralload = 0, 1, 0)) AS InitialViralLoadUnsuppressed,
+            SUM(RegimenChanged) AS RegimenChangeDone,
+            SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+            SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+            SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+            SUM(PatientRetained) AS PatientsRetained,
+            SUM(PatientNotRetained) AS PatientsNotRetained
+        FROM CsSentinelEvents
+        WHERE LinkedToART = 1 and WithoutBaselineCD4 = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+        GROUP BY Gender
+        """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "initialCD4NotDone", "headerName": "Initial CD4 Not Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "initialCD4NotDone": row.InitialCD4NotDone,
+                "InitialViralLoadDone": row.InitialViralLoadDone,
+                "InitialViralLoadNotDone": row.InitialViralLoadNotDone,
+                "InitialViralLoadSuppressed": row.InitialViralLoadSuppressed,
+                "InitialViralLoadUnsuppressed": row.InitialViralLoadUnsuppressed,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Initial CD4 Done']:
+        query2 = f"""
+        SELECT 
+            Gender,
+            SUM(WithBaselineCD4) AS InitialCD4Done,
+            SUM(AHD) AS WithAHD,
+            SUM(CASE WHEN AHD = 0 THEN 1 ELSE 0 END) AS  WithoutAHD,
+            SUM(NotStaged) AS NotStaged,
+            SUM(WithInitialViralLoad) AS InitialViralLoadDone,
+            SUM(WithoutInitialViralLoad) AS InitialViralLoadNotDone,
+            SUM(IsSuppressedInitialViralload) AS InitialViralLoadSuppressed,
+            SUM(IIF(CsSentinelEvents.IsSuppressedInitialViralload = 0, 1, 0)) AS InitialViralLoadUnsuppressed,
+            SUM(RegimenChanged) AS RegimenChangeDone,
+            SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+            SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+            SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+            SUM(PatientRetained) AS PatientsRetained,
+            SUM(PatientNotRetained) AS PatientsNotRetained
+        FROM CsSentinelEvents
+        WHERE LinkedToART = 1 and WithoutBaselineCD4 = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+        GROUP BY Gender
+        """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "initialCD4Done", "headerName": "Initial CD4 Done", "flex": 1, "minWidth": 100},
+                {"field": "withAHD", "headerName": "With AHD", "flex": 1, "minWidth": 100},
+                {"field": "WithoutAHD", "headerName": "Without AHD", "flex": 1, "minWidth": 100},
+                {"field": "NotStaged", "headerName": "Not Staged", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "initialCD4Done": row.InitialCD4Done,
+                "withAHD": row.WithAHD,
+                "WithoutAHD": row.WithoutAHD,
+                "NotStaged": row.NotStaged,
+                "InitialViralLoadDone": row.InitialViralLoadDone,
+                "InitialViralLoadNotDone": row.InitialViralLoadNotDone,
+                "InitialViralLoadSuppressed": row.InitialViralLoadSuppressed,
+                "InitialViralLoadUnsuppressed": row.InitialViralLoadUnsuppressed,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Not Linked']:
         query1 = f"""
-            SELECT Gender, SUM(LinkedToART) as number 
-            FROM CsSentinelEvents 
-            WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
-            GROUP BY Gender;
+        SELECT Gender, SUM(NotLinkedToART) as number 
+        FROM CsSentinelEvents 
+        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+        GROUP BY Gender;
         """
         data1 = db.execute(text(query1)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution",
+            "tableTitle": f"Gender Distribution Among New Cases Reported",
             "columns": [
                 {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
                 {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
@@ -127,171 +381,523 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
             "rows": [{"gender": row.Gender, "number": row.number} for row in data1]
         })
 
-        # Table 2: Gender and Not Linked
+    elif node.node in ['With AHD']:
         query2 = f"""
-            SELECT Gender, SUM(CASE WHEN LinkedToART = 0 THEN 1 ELSE 0 END) as number 
-            FROM CsSentinelEvents 
-            WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
-            GROUP BY Gender;"""
+                SELECT 
+                    Gender,
+                    SUM(AHD) AS WithAHD,
+                    SUM(WithInitialViralLoad) AS InitialViralLoadDone,
+                    SUM(WithoutInitialViralLoad) AS InitialViralLoadNotDone,
+                    SUM(IsSuppressedInitialViralload) AS InitialViralLoadSuppressed,
+                    SUM(IIF(CsSentinelEvents.IsSuppressedInitialViralload = 0, 1, 0)) AS InitialViralLoadUnsuppressed,
+                    SUM(RegimenChanged) AS RegimenChangeDone,
+                    SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+                    SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+                    SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and WithBaselineCD4 = 1 and AHD = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
         data2 = db.execute(text(query2)).fetchall()
+
         result.append({
-            "tableTitle": "Non-Linked Cases by Gender",
+            "tableTitle": f"Gender Distribution For Followup Events",
             "columns": [
                 {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
-                {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
+                {"field": "withAHD", "headerName": "With AHD", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1,
+                 "minWidth": 100},
+                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1,
+                 "minWidth": 100},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1,
+                 "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
             ],
-            "rows": [{"gender": row.Gender, "number": row.number} for row in data2]
+            "rows": [{
+                "gender": row.Gender,
+                "withAHD": row.WithAHD,
+                "InitialViralLoadDone": row.InitialViralLoadDone,
+                "InitialViralLoadNotDone": row.InitialViralLoadNotDone,
+                "InitialViralLoadSuppressed": row.InitialViralLoadSuppressed,
+                "InitialViralLoadUnsuppressed": row.InitialViralLoadUnsuppressed,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
         })
 
-        # Table 3: Patient Retention
-        query3 = f"""
-        SELECT 
-            IIF(PatientRetained = 0, 'No', 'Yes') as patient_retained, 
-            SUM(LinkedToART) as number 
-        FROM CsSentinelEvents
-        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
-        GROUP BY PatientRetained;
-        """
-        data3 = db.execute(text(query3)).fetchall()
-        result.append({
-            "tableTitle": f"Patient Retention",
-            "columns": [
-                {"field": "patient_retained", "headerName": "Patient Retained", "flex": 1, "minWidth": 100},
-                {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
-            ],
-            "rows": [{"patient_retained": row.patient_retained, "number": row.number} for row in data3]
-        })
-
-    elif node.node in ["Initial CD4 Not Done", "Initial CD4 Done", 'With AHD', 'Without AHD', 'Not Staged']:
-        # Table 1: Patient Retained and Baseline CD4
-        query1 = f"""
-        SELECT 
-            IIF(PatientRetained = 0, 'No', 'Yes') as patient_retained, 
-            IIF(WithBaselineCD4 = 0, 'No', 'Yes') as with_baseline_cd4, 
-            COUNT(WithBaselineCD4) as number 
-        FROM CsSentinelEvents
-        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
-        GROUP BY PatientRetained, WithBaselineCD4;
-        """
-        data1 = db.execute(text(query1)).fetchall()
-        result.append({
-            "tableTitle": "Patient Retention and Baseline CD4",
-            "columns": [
-                {"field": "patient_retained", "headerName": "Patient Retained", "flex": 1, "minWidth": 100},
-                {"field": "with_baseline_cd4", "headerName": "With Baseline CD4", "flex": 1, "minWidth": 100},
-                {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
-            ],
-            "rows": [
-                {
-                    "patient_retained": row.patient_retained,
-                    "with_baseline_cd4": row.with_baseline_cd4,
-                    "number": row.number
-                }
-                for row in data1
-            ]
-        })
-
-        # Table 2: WHO Stage and Gender
+    elif node.node in ['Without AHD']:
         query2 = f"""
-        SELECT 
-            WHOStageATART, 
-            Gender, 
-            SUM(LinkedToART) as number 
-        FROM CsSentinelEvents 
-        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
-        GROUP BY WHOStageATART, Gender
-        ORDER BY WHOStageATART;
-        """
+                SELECT 
+                    Gender,
+                    SUM(CASE WHEN AHD = 0 THEN 1 ELSE 0 END) AS WithoutAHD,
+                    SUM(WithInitialViralLoad) AS InitialViralLoadDone,
+                    SUM(WithoutInitialViralLoad) AS InitialViralLoadNotDone,
+                    SUM(IsSuppressedInitialViralload) AS InitialViralLoadSuppressed,
+                    SUM(IIF(CsSentinelEvents.IsSuppressedInitialViralload = 0, 1, 0)) AS InitialViralLoadUnsuppressed,
+                    SUM(RegimenChanged) AS RegimenChangeDone,
+                    SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+                    SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+                    SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and WithBaselineCD4 = 1 and AHD = 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
         data2 = db.execute(text(query2)).fetchall()
-        result.append({
-            "tableTitle": f"WHO Stage Distribution by Gender",
-            "columns": [
-                { "field": "who_stage", "headerName": "WHO Stage", "flex": 1, "minWidth": 100 },
-                { "field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100 },
-                { "field": "number", "headerName": "Number", "flex": 1, "minWidth": 100 }
-            ],
-            "rows": [
-                {
-                    "who_stage": row.WHOStageATART,
-                    "gender": row.Gender,
-                    "number": row.number
-                }
-                for row in data2
-            ]
-        })
 
-        # Table 2: WHO Stage and Gender
-        query3 = f"""
-        SELECT gender, SUM(CD4Lessthan200) CD4LessThan200, Sum(CD4Morethan200) CD4MoreThan200 
-        From CsSentinelEvents 
-        WHERE CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
-        GROUP BY Gender;
-        """
-        data3 = db.execute(text(query3)).fetchall()
         result.append({
-            "tableTitle": f"WHO Stage Distribution by Gender",
+            "tableTitle": f"Gender Distribution For Followup Events",
             "columns": [
                 {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
-                {"field": "CD4LessThan200", "headerName": "CD4 Less Than 200 copies", "flex": 1, "minWidth": 100},
-                {"field": "CD4MoreThan200", "headerName": "CD4 More Than 200 copies", "flex": 1, "minWidth": 100}
+                {"field": "WithoutAHD", "headerName": "Without AHD", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1,
+                 "minWidth": 100},
+                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1,
+                 "minWidth": 100},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1,
+                 "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
             ],
-            "rows": [
-                {
-                    "who_stage": row.gender,
-                    "gender": row.CD4LessThan200,
-                    "number": row.CD4MoreThan200
-                }
-                for row in data3
-            ]
-        })
-    elif node.node in ['Initial Viral Load Done', 'Initial Viral Load Not Done', 'Initial Viral Load Suppressed', 'Initial Viral Load Unsuppressed']:
-        query1 = f"""
-        SELECT  
-            Gender, 
-            SUM(WithInitialViralLoad) as number 
-        FROM CsSentinelEvents 
-        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
-        GROUP BY Gender;
-        """
-        data1 = db.execute(text(query1)).fetchall()
-        result.append({
-            "tableTitle": f"Initial Viral Load Distribution by Gender",
-            "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
-                {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
-            ],
-            "rows": [
-                {
-                    "gender": row.Gender,
-                    "number": row.number
-                }
-                for row in data1
-            ]
+            "rows": [{
+                "gender": row.Gender,
+                "WithoutAHD": row.WithoutAHD,
+                "InitialViralLoadDone": row.InitialViralLoadDone,
+                "InitialViralLoadNotDone": row.InitialViralLoadNotDone,
+                "InitialViralLoadSuppressed": row.InitialViralLoadSuppressed,
+                "InitialViralLoadUnsuppressed": row.InitialViralLoadUnsuppressed,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
         })
 
+    elif node.node in ['Not Staged']:
         query2 = f"""
-        SELECT  
-            Gender, 
-            SUM(WithoutInitialViralLoad) as number 
-        FROM CsSentinelEvents 
-        WHERE WHOStageATART > 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
-        GROUP BY Gender;
-        """
+                SELECT 
+                    Gender,
+                    SUM(NotStaged) AS NotStaged,
+                    SUM(WithInitialViralLoad) AS InitialViralLoadDone,
+                    SUM(WithoutInitialViralLoad) AS InitialViralLoadNotDone,
+                    SUM(IsSuppressedInitialViralload) AS InitialViralLoadSuppressed,
+                    SUM(IIF(CsSentinelEvents.IsSuppressedInitialViralload = 0, 1, 0)) AS InitialViralLoadUnsuppressed,
+                    SUM(RegimenChanged) AS RegimenChangeDone,
+                    SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+                    SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+                    SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and WithBaselineCD4 = 1 and NotStaged = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
         data2 = db.execute(text(query2)).fetchall()
+
         result.append({
-            "tableTitle": f"Initial Viral Load Not Done Distribution by Gender",
+            "tableTitle": f"Gender Distribution For Followup Events",
             "columns": [
                 {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
-                {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
+                {"field": "NotStaged", "headerName": "Not Staged", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1,
+                 "minWidth": 100},
+                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1,
+                 "minWidth": 100},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1,
+                 "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
             ],
-            "rows": [
-                {
-                    "gender": row.Gender,
-                    "number": row.number
-                }
-                for row in data2
-            ]
+            "rows": [{
+                "gender": row.Gender,
+                "NotStaged": row.NotStaged,
+                "InitialViralLoadDone": row.InitialViralLoadDone,
+                "InitialViralLoadNotDone": row.InitialViralLoadNotDone,
+                "InitialViralLoadSuppressed": row.InitialViralLoadSuppressed,
+                "InitialViralLoadUnsuppressed": row.InitialViralLoadUnsuppressed,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
         })
+
+    elif node.node in ['Initial Viral Load Done']:
+        query2 = f"""
+                SELECT 
+                    Gender,
+                    SUM(WithInitialViralLoad) AS InitialViralLoadDone,
+                    SUM(IsSuppressedInitialViralload) AS InitialViralLoadSuppressed,
+                    SUM(IIF(CsSentinelEvents.IsSuppressedInitialViralload = 0, 1, 0)) AS InitialViralLoadUnsuppressed,
+                    SUM(RegimenChanged) AS RegimenChangeDone,
+                    SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+                    SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+                    SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and WithInitialViralLoad = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1,
+                 "minWidth": 100},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1,
+                 "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "InitialViralLoadDone": row.InitialViralLoadDone,
+                "InitialViralLoadSuppressed": row.InitialViralLoadSuppressed,
+                "InitialViralLoadUnsuppressed": row.InitialViralLoadUnsuppressed,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Initial Viral Load Not Done']:
+        query2 = f"""
+                SELECT 
+                    Gender,
+                    SUM(WithoutInitialViralLoad) AS InitialViralLoadNotDone,
+                    SUM(RegimenChanged) AS RegimenChangeDone,
+                    SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+                    SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+                    SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and WithoutInitialViralLoad = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "InitialViralLoadNotDone": row.InitialViralLoadNotDone,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Initial Viral Load Suppressed']:
+        query2 = f"""
+                SELECT 
+                    Gender,
+                    SUM(IsSuppressedInitialViralload) AS InitialViralLoadSuppressed,
+                    SUM(RegimenChanged) AS RegimenChangeDone,
+                    SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+                    SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+                    SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and IsSuppressedInitialViralload = 1 and WithoutInitialViralLoad = 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "InitialViralLoadSuppressed": row.InitialViralLoadSuppressed,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Initial Viral Load Unsuppressed']:
+        query2 = f"""
+                SELECT 
+                    Gender,
+                    SUM(IIF(CsSentinelEvents.IsSuppressedInitialViralload = 0, 1, 0)) AS InitialViralLoadUnsuppressed,
+                    SUM(RegimenChanged) AS RegimenChangeDone,
+                    SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+                    SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+                    SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and IsSuppressedInitialViralload = 0 and WithoutInitialViralLoad = 0 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "InitialViralLoadUnsuppressed": row.InitialViralLoadUnsuppressed,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Regimen Change Not Done']:
+        query2 = f"""
+                SELECT 
+                    Gender,
+                    SUM(RegimenNotChanged) AS RegimenChangeNotDone,
+                    SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+                    SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and RegimenChangeNotDone = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "InitialViralLoadUnsuppressed": row.InitialViralLoadUnsuppressed,
+                "RegimenChangeNotDone": row.RegimenChangeNotDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Regimen Change Done']:
+        query2 = f"""
+                SELECT 
+                    Gender,
+                    SUM(RegimenChanged) AS RegimenChangeDone,
+                    SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+                    SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and RegimenChanged = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "RegimenChangeDone": row.RegimenChangeDone,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Latest Viral Load Unsuppressed']:
+        query2 = f"""
+                SELECT 
+                    Gender,
+                    SUM(LatestVLNotSuppressed) AS LatestVLUnsuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and LatestVLNotSuppressed = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "LatestVLUnsuppressed": row.LatestVLUnsuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Latest Viral Load Suppressed']:
+        query2 = f"""
+                SELECT 
+                    Gender,
+                    SUM(LatestVLSuppressed) AS LatestVLSuppressed,
+                    SUM(PatientRetained) AS PatientsRetained,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and LatestVLSuppressed = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "LatestVLSuppressed": row.LatestVLSuppressed,
+                "PatientsRetained": row.PatientsRetained,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Patients Not Retained']:
+        query2 = f"""
+                SELECT 
+                    Gender,
+                    SUM(PatientNotRetained) AS PatientsNotRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and PatientsNotRetained = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "PatientsNotRetained": row.PatientsNotRetained,
+            } for row in data2]
+        })
+
+    elif node.node in ['Patients Retained']:
+        query2 = f"""
+                SELECT 
+                    Gender,
+                    SUM(PatientRetained) AS PatientsRetained
+                FROM CsSentinelEvents
+                WHERE LinkedToART = 1 and PatientsRetained = 1 and CohortYearMonth >= '{node.CohortYearMonthStart}' and CohortYearMonth <= '{node.CohortYearMonthEnd}' {filter_string}
+                GROUP BY Gender
+                """
+        data2 = db.execute(text(query2)).fetchall()
+
+        result.append({
+            "tableTitle": f"Gender Distribution For Followup Events",
+            "columns": [
+                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
+            ],
+            "rows": [{
+                "gender": row.Gender,
+                "PatientsRetained": row.PatientsRetained,
+            } for row in data2]
+        })
+
+
     elif 'highcharts' in node.node:
         return []
     else:
