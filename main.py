@@ -48,6 +48,8 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
         query = query.filter(CaseBreakdown.PartnerName.in_(filters.Partner))
     if filters.Gender:
         query = query.filter(CaseBreakdown.Gender.in_(filters.Gender))
+    if filters.AgeGroup:
+        query = query.filter(CaseBreakdown.AgeGroup.in_(filters.AgeGroup))
     if filters.CohortYearMonthStart:
         query = query.filter(CaseBreakdown.CohortYearMonth >= filters.CohortYearMonthStart)
     else:
@@ -105,6 +107,8 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         filters.append(f"SubCounty IN {tuple(node.SubCounty)}")
     if node.Gender:
         filters.append(f"Gender IN {tuple(node.Gender)}")
+    if node.AgeGroup:
+        filters.append(f"AgeGroup IN {tuple(node.AgeGroup)}")
 
     # Combine filters with base query
     if filters:
