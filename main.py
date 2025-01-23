@@ -71,11 +71,20 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
         for record in data
     ]
 
+
     # Get unique values for counties, subcounties, partners, and agencies
-    unique_counties = db.query(CaseBreakdown.County).distinct().order_by(CaseBreakdown.County).all()
-    unique_subcounties = db.query(CaseBreakdown.SubCounty).distinct().order_by(CaseBreakdown.SubCounty).all()
+    unique_counties_query = db.query(CaseBreakdown.County).distinct().order_by(CaseBreakdown.County)
+    unique_subcounties_query = db.query(CaseBreakdown.SubCounty).distinct().order_by(CaseBreakdown.SubCounty)
     unique_partners = db.query(CaseBreakdown.PartnerName).distinct().order_by(CaseBreakdown.PartnerName).all()
     unique_agencies = db.query(CaseBreakdown.AgencyName).distinct().order_by(CaseBreakdown.AgencyName).all()
+
+    if filters.County:
+        unique_subcounties_query = unique_subcounties_query.filter(CaseBreakdown.County.in_(filters.County))
+    if filters.SubCounty:
+        unique_counties_query = unique_counties_query.filter(CaseBreakdown.SubCounty.in_(filters.SubCounty))
+
+    unique_counties = unique_counties_query.all()
+    unique_subcounties = unique_subcounties_query.all()
 
     return {
         "sankeyData": sankey_data,
