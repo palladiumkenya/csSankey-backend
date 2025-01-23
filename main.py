@@ -98,17 +98,17 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
     filters = []
     filter_string = ""
     if node.Partner:
-        filters.append(f"PartnerName IN {tuple(node.Partner)}")
+        filters.append(f"PartnerName IN {format_sql_in_clause(node.Partner)}")
     if node.Agency:
-        filters.append(f"AgencyName IN {tuple(node.Agency)}")
+        filters.append(f"AgencyName IN {format_sql_in_clause(node.Agency)}")
     if node.County:
-        filters.append(f"County IN {tuple(node.County)}")
+        filters.append(f"County IN {format_sql_in_clause(node.County)}")
     if node.SubCounty:
-        filters.append(f"SubCounty IN {tuple(node.SubCounty)}")
+        filters.append(f"SubCounty IN {format_sql_in_clause(node.SubCounty)}")
     if node.Gender:
-        filters.append(f"Gender IN {tuple(node.Gender)}")
+        filters.append(f"Gender IN {format_sql_in_clause(node.Gender)}")
     if node.AgeGroup:
-        filters.append(f"AgeGroup IN {tuple(node.AgeGroup)}")
+        filters.append(f"AgeGroup IN {format_sql_in_clause(node.AgeGroup)}")
 
     # Combine filters with base query
     if filters:
@@ -926,6 +926,12 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         })
 
     return result
+
+
+def format_sql_in_clause(values):
+    if isinstance(values, (list, tuple)) and len(values) == 1:
+        return f"('{values[0]}')"
+    return str(tuple(values))
 
 
 @app.get("/")
