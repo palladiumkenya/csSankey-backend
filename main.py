@@ -46,6 +46,8 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
         query = query.filter(CaseBreakdown.AgencyName.in_(filters.Agency))
     if filters.Partner:
         query = query.filter(CaseBreakdown.PartnerName.in_(filters.Partner))
+    if filters.Gender:
+        query = query.filter(CaseBreakdown.Gender.in_(filters.Gender))
     if filters.CohortYearMonthStart:
         query = query.filter(CaseBreakdown.CohortYearMonth >= filters.CohortYearMonthStart)
     else:
@@ -58,13 +60,6 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
     query = query.group_by(CaseBreakdown.ord, CaseBreakdown.source, CaseBreakdown.target).order_by(CaseBreakdown.ord)
     data = query.all()
 
-    df = pd.DataFrame([{
-        'source': d.source,
-        'target': d.target,
-        'metric': d.total_metric
-    } for d in data])
-
-    print(df['source'].tolist().index(row['source']) for _, row in df.iterrows())
     # Transforming the data for Highcharts Sankey
     sankey_data = [
         {"from": record.source, "to": record.target, "weight": record.total_metric}

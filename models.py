@@ -14,12 +14,15 @@ class CaseBreakdown(Base):
     ord = Column(Integer, unique=False)
     County = Column(String, unique=False)
     SubCounty = Column(String, unique=False)
+    Gender = Column(String, unique=False)
     AgencyName = Column(String, unique=False)
     PartnerName = Column(String, unique=False)
     CohortYearMonth = Column(String, unique=False)
 
     __table_args__ = (
-        PrimaryKeyConstraint('source', 'target', 'County', 'SubCounty', 'AgencyName', 'PartnerName', 'CohortYearMonth'),
+        PrimaryKeyConstraint(
+            'source', 'target', 'County', 'SubCounty', 'AgencyName', 'PartnerName', 'CohortYearMonth', 'Gender'
+        ),
     )
 
 
@@ -30,6 +33,7 @@ class SankeyFilter(BaseModel):
     Partner: Optional[list] = None
     CohortYearMonthStart: Optional[str] = None
     CohortYearMonthEnd: Optional[str] = None
+    Gender: Optional[list] = None
 
 
 class SankeyBreakdown(BaseModel):
@@ -40,3 +44,4 @@ class SankeyBreakdown(BaseModel):
     SubCounty: Optional[list] = None
     Agency: Optional[list] = None
     Partner: Optional[list] = None
+    Gender: Optional[list] = None
