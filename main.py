@@ -103,6 +103,8 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         filters.append(f"County IN {tuple(node.County)}")
     if node.SubCounty:
         filters.append(f"SubCounty IN {tuple(node.SubCounty)}")
+    if node.Gender:
+        filters.append(f"Gender IN {tuple(node.Gender)}")
 
     # Combine filters with base query
     if filters:
@@ -141,21 +143,21 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
                 {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
                 {"field": "linked", "headerName": "Linked", "flex": 1, "minWidth": 100},
                 {"field": "notLinked", "headerName": "Not Linked", "flex": 1, "minWidth": 100},
-                {"field": "initialCD4Done", "headerName": "Initial CD4 Done", "flex": 1, "minWidth": 100},
-                {"field": "initialCD4NotDone", "headerName": "Initial CD4 Not Done", "flex": 1, "minWidth": 100},
+                {"field": "initialCD4Done", "headerName": "Initial CD4 Done", "flex": 1, "minWidth": 150},
+                {"field": "initialCD4NotDone", "headerName": "Initial CD4 Not Done", "flex": 1, "minWidth": 150},
                 {"field": "withAHD", "headerName": "With AHD", "flex": 1, "minWidth": 100},
                 {"field": "WithoutAHD", "headerName": "Without AHD", "flex": 1, "minWidth": 100},
                 {"field": "NotStaged", "headerName": "Not Staged", "flex": 1, "minWidth": 100},
-                {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
-                {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1, "minWidth": 100},
-                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1, "minWidth": 100},
-                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1, "minWidth": 100},
-                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
-                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
-                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
-                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
-                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
-                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
+                {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 150},
+                {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1, "minWidth": 150},
+                {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1, "minWidth": 150},
+                {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1, "minWidth": 150},
+                {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 150},
+                {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 150},
+                {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 150},
+                {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 150},
+                {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 150},
+                {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 150},
             ],
             "rows": [{
                 "gender": row.Gender,
