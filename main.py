@@ -70,10 +70,10 @@ def get_sankey_data(filters: SankeyFilter, db: Session = Depends(get_db)):
 
 
     # Get unique values for counties, subcounties, partners, and agencies
-    unique_counties_query = db.query(CaseBreakdown.County).distinct().order_by(CaseBreakdown.County)
-    unique_subcounties_query = db.query(CaseBreakdown.SubCounty).distinct().order_by(CaseBreakdown.SubCounty)
-    unique_partners = db.query(CaseBreakdown.PartnerName).distinct().order_by(CaseBreakdown.PartnerName).all()
-    unique_agencies = db.query(CaseBreakdown.AgencyName).distinct().order_by(CaseBreakdown.AgencyName).all()
+    unique_counties_query = db.query(CaseBreakdown.County).filter(CaseBreakdown.County != None).distinct().order_by(CaseBreakdown.County)
+    unique_subcounties_query = db.query(CaseBreakdown.SubCounty).filter(CaseBreakdown.SubCounty != None).distinct().order_by(CaseBreakdown.SubCounty)
+    unique_partners = db.query(CaseBreakdown.PartnerName).filter(CaseBreakdown.PartnerName != None).distinct().order_by(CaseBreakdown.PartnerName).all()
+    unique_agencies = db.query(CaseBreakdown.AgencyName).filter(CaseBreakdown.AgencyName != None).distinct().order_by(CaseBreakdown.AgencyName).all()
 
     if filters.County:
         unique_subcounties_query = unique_subcounties_query.filter(CaseBreakdown.County.in_(filters.County))
@@ -113,6 +113,7 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
     # Combine filters with base query
     if filters:
         filter_string += " AND " + " AND ".join(filters)
+    print(filter_string)
 
     if node.node in ['Total Cases Reported']:
         query2 = f"""
