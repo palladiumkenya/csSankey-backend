@@ -143,9 +143,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "linked", "headerName": "Linked", "flex": 1, "minWidth": 100},
                 {"field": "notLinked", "headerName": "Not Linked", "flex": 1, "minWidth": 100},
                 {"field": "initialCD4Done", "headerName": "Initial CD4 Done", "flex": 1, "minWidth": 150},
@@ -213,9 +213,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "linked", "headerName": "Linked", "flex": 1, "minWidth": 100},
                 {"field": "initialCD4Done", "headerName": "Initial CD4 Done", "flex": 1, "minWidth": 100},
                 {"field": "initialCD4NotDone", "headerName": "Initial CD4 Not Done", "flex": 1, "minWidth": 100},
@@ -277,9 +277,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "initialCD4NotDone", "headerName": "Initial CD4 Not Done", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1, "minWidth": 100},
@@ -333,9 +333,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "initialCD4Done", "headerName": "Initial CD4 Done", "flex": 1, "minWidth": 100},
                 {"field": "withAHD", "headerName": "With AHD", "flex": 1, "minWidth": 100},
                 {"field": "WithoutAHD", "headerName": "Without AHD", "flex": 1, "minWidth": 100},
@@ -380,9 +380,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data1 = db.execute(text(query1)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution Among New Cases Reported",
+            "tableTitle": f"Sex Distribution Among New Cases Reported",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
             ],
             "rows": [{"gender": row.Gender, "number": row.number} for row in data1]
@@ -410,9 +410,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "withAHD", "headerName": "With AHD", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1,
@@ -466,9 +466,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "WithoutAHD", "headerName": "Without AHD", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1,
@@ -522,9 +522,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "NotStaged", "headerName": "Not Staged", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1,
@@ -576,9 +576,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadDone", "headerName": "Initial Viral Load Done", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1,
                  "minWidth": 100},
@@ -623,9 +623,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadNotDone", "headerName": "Initial Viral Load Not Done", "flex": 1, "minWidth": 100},
                 {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
                 {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
@@ -664,9 +664,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadSuppressed", "headerName": "Initial Viral Load Suppressed", "flex": 1, "minWidth": 100},
                 {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
                 {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
@@ -705,9 +705,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1, "minWidth": 100},
                 {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
                 {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
@@ -744,9 +744,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "InitialViralLoadUnsuppressed", "headerName": "Initial Viral Load Unsuppressed", "flex": 1, "minWidth": 100},
                 {"field": "RegimenChangeNotDone", "headerName": "Regimen Change Not Done", "flex": 1, "minWidth": 100},
                 {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
@@ -781,9 +781,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "RegimenChangeDone", "headerName": "Regimen Change Done", "flex": 1, "minWidth": 100},
                 {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
                 {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
@@ -814,9 +814,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "LatestVLUnsuppressed", "headerName": "Latest VL Unsuppressed", "flex": 1, "minWidth": 100},
                 {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
                 {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
@@ -843,9 +843,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "LatestVLSuppressed", "headerName": "Latest VL Suppressed", "flex": 1, "minWidth": 100},
                 {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
                 {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
@@ -870,9 +870,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "PatientsNotRetained", "headerName": "Patients Not Retained", "flex": 1, "minWidth": 100},
             ],
             "rows": [{
@@ -893,9 +893,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data2 = db.execute(text(query2)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution For Followup Events",
+            "tableTitle": f"Sex Distribution For Followup Events",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "PatientsRetained", "headerName": "Patients Retained", "flex": 1, "minWidth": 100},
             ],
             "rows": [{
@@ -918,9 +918,9 @@ def sankey_data_breakdown(node: SankeyBreakdown, db: Session = Depends(get_db)):
         data1 = db.execute(text(query1)).fetchall()
 
         result.append({
-            "tableTitle": f"Gender Distribution",
+            "tableTitle": f"Sex Distribution",
             "columns": [
-                {"field": "gender", "headerName": "Gender", "flex": 1, "minWidth": 100},
+                {"field": "gender", "headerName": "Sex", "flex": 1, "minWidth": 100},
                 {"field": "number", "headerName": "Number", "flex": 1, "minWidth": 100}
             ],
             "rows": [{"gender": row.Gender, "number": row.number} for row in data1]
